@@ -1,14 +1,28 @@
 import java.awt.EventQueue;
+import java.sql.*;
+
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+
 import java.awt.Font;
+import java.awt.Window;
+
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
+
+import net.proteanit.sql.DbUtils;
+
 import javax.swing.JTextField;
-import javax.swing.JTabbedPane;
+
 import javax.swing.JScrollPane;
 import javax.swing.JButton;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+import javax.swing.JTable;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 public class Admin {
 
@@ -24,6 +38,8 @@ public class Admin {
 	/**
 	 * Launch the application.
 	 */
+	
+	String userName, userPassword, userBatch, userProgram, userPhone, userSemester;
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
@@ -42,7 +58,52 @@ public class Admin {
 	 */
 	public Admin() {
 		initialize();
+		Connection();
+		LoadDataToTable();
 	}
+	
+	
+
+	Connection conn;
+	PreparedStatement prepStatement;
+	ResultSet resSet;
+	private JTable table;
+	
+	private void Connection() {
+		
+		try {
+			
+			//Class.forName("com.mysql.jdbc.Driver");
+			
+			Class.forName("com.mysql.cj.jdbc.Driver");
+			conn=DriverManager.getConnection("jdbc:mysql://localhost/aiubregistration","root","");
+			
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		catch(SQLException ex)
+		{
+			//e.printStackTrace();
+		}
+		
+	}
+	
+	private void LoadDataToTable() {
+		
+		try {
+			prepStatement=conn.prepareStatement("select * from studentreg");
+			resSet=prepStatement.executeQuery();
+			table.setModel(DbUtils.resultSetToTableModel(resSet));
+			
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+	
 
 	/**
 	 * Initialize the contents of the frame.
@@ -124,16 +185,9 @@ public class Admin {
 		txtSemester.setBounds(119, 237, 235, 26);
 		panel.add(txtSemester);
 		
-		JScrollPane scrollPane = new JScrollPane();
-		scrollPane.setBounds(523, 110, 489, 328);
-		frame.getContentPane().add(scrollPane);
-		
-		JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
-		scrollPane.setViewportView(tabbedPane);
-		
 		JPanel panel_1 = new JPanel();
 		panel_1.setBorder(new TitledBorder(null, "Search", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		panel_1.setBounds(644, 34, 368, 54);
+		panel_1.setBounds(525, 35, 368, 54);
 		frame.getContentPane().add(panel_1);
 		panel_1.setLayout(null);
 		
@@ -143,33 +197,255 @@ public class Admin {
 		panel_1.add(lblNewLabel_1);
 		
 		txtStdSearchID = new JTextField();
+		txtStdSearchID.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent e) {
+				
+				String id=txtStdSearchID.getText();
+				try {
+					
+					prepStatement=conn.prepareStatement("select username,password,batch,program,phone,semester from studentreg where id=?");
+					prepStatement.setString(1,id);
+					resSet = prepStatement.executeQuery();
+					
+					if(resSet.next()==true)
+					{
+						String userName=resSet.getString(1);
+						String userPassword=resSet.getString(2);
+						String userBatch=resSet.getString(3);
+						String userProgram=resSet.getString(4);
+						String userPhone=resSet.getString(5);
+						String userSemester=resSet.getString(6);
+						
+						txtUserName.setText(userName);
+						txtPassword.setText(userPassword);
+						txtBatch.setText(userBatch);
+						txtProgram.setText(userProgram);
+						txtPhone.setText(userPhone);
+						txtSemester.setText(userSemester);
+					}
+					else {
+						
+						txtUserName.setText("");
+						txtPassword.setText("");
+						txtBatch.setText("");
+						txtProgram.setText("");
+						txtPhone.setText("");
+						txtSemester.setText("");
+					
+						txtUserName.requestFocus();
+					}	
+					
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}			
+				
+			}
+		});
 		txtStdSearchID.setBounds(116, 10, 248, 34);
 		panel_1.add(txtStdSearchID);
 		txtStdSearchID.setColumns(10);
 		
 		JButton btnSave = new JButton("SAVE");
+		btnSave.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				
+				  
+				
+				userName= txtUserName.getText();
+				userPassword= txtPassword.getText();
+				userBatch= txtBatch.getText();
+				userProgram = txtProgram.getText();
+				userPhone = txtPhone.getText();
+				userSemester= txtSemester.getText();
+				
+				
+				try {
+					
+					prepStatement=conn.prepareStatement("insert into studentreg(username,password,batch,program,phone,semester)values(?,?,?,?,?,?)");
+					
+					prepStatement.setString(1, userName);
+					prepStatement.setString(2, userPassword);
+					prepStatement.setString(3, userBatch);
+					prepStatement.setString(4, userProgram);
+					prepStatement.setString(5, userPhone);
+					prepStatement.setString(6, userSemester);
+					prepStatement.executeUpdate();
+					
+					JOptionPane.showMessageDialog(null, "Record added");
+					LoadDataToTable();
+					
+					txtUserName.setText("");
+					txtPassword.setText("");
+					txtBatch.setText("");
+					txtProgram.setText("");
+					txtPhone.setText("");
+					txtSemester.setText("");
+					
+					txtUserName.requestFocus();
+					
+					
+					
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} 
+			}
+		});
 		btnSave.setFont(new Font("Tahoma", Font.BOLD, 14));
 		btnSave.setBounds(34, 393, 114, 41);
 		frame.getContentPane().add(btnSave);
 		
 		JButton btnUpdate = new JButton("Update");
+		btnUpdate.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				String id=txtStdSearchID.getText();
+				
+				userName= txtUserName.getText();
+				userPassword= txtPassword.getText();
+				userBatch= txtBatch.getText();
+				userProgram = txtProgram.getText();
+				userPhone = txtPhone.getText();
+				userSemester= txtSemester.getText();
+				
+				
+				try {
+					
+					prepStatement=conn.prepareStatement("update studentreg set username=?,password=?,batch=?,program=?,phone=?,semester=? where id=?");
+					
+					prepStatement.setString(1, userName);
+					prepStatement.setString(2, userPassword);
+					prepStatement.setString(3, userBatch);
+					prepStatement.setString(4, userProgram);
+					prepStatement.setString(5, userPhone);
+					prepStatement.setString(6, userSemester);
+					prepStatement.setString(7,id);
+					
+					prepStatement.executeUpdate();
+					
+					LoadDataToTable();
+					JOptionPane.showMessageDialog(null, "Record Updated!");
+					
+					
+					txtUserName.setText("");
+					txtPassword.setText("");
+					txtBatch.setText("");
+					txtProgram.setText("");
+					txtPhone.setText("");
+					txtSemester.setText("");
+					
+					txtUserName.requestFocus();
+					
+					
+					
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} 
+				
+				
+				
+			}
+		});
 		btnUpdate.setFont(new Font("Tahoma", Font.BOLD, 14));
-		btnUpdate.setBounds(205, 393, 114, 41);
+		btnUpdate.setBounds(158, 393, 90, 41);
 		frame.getContentPane().add(btnUpdate);
 		
 		JButton btnDelete = new JButton("Delete");
+		btnDelete.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+					String id=txtStdSearchID.getText();
+					try {
+					
+					prepStatement=conn.prepareStatement("delete from studentreg where id=?");
+					
+					prepStatement.setString(1,id);
+					
+					prepStatement.executeUpdate();
+					
+					JOptionPane.showMessageDialog(null, "If you delete, You can't be undone..!");
+					LoadDataToTable();
+					
+					
+					
+//					txtUserName.setText("");
+//					txtPassword.setText("");
+//					txtBatch.setText("");
+//					txtProgram.setText("");
+//					txtPhone.setText("");
+//					txtSemester.setText("");
+//					
+//					txtUserName.requestFocus();
+//					
+					
+					
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} 
+				
+				
+			}
+		});
 		btnDelete.setFont(new Font("Tahoma", Font.BOLD, 14));
-		btnDelete.setBounds(355, 393, 138, 41);
+		btnDelete.setBounds(258, 393, 90, 41);
 		frame.getContentPane().add(btnDelete);
 		
 		JButton btnNewButton = new JButton("Course Registration");
+		btnNewButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				StudentCourseReg sCourseReg=new StudentCourseReg();
+				sCourseReg.setVisible(true);
+				
+				
+			}
+		});
 		btnNewButton.setFont(new Font("Tahoma", Font.BOLD, 14));
 		btnNewButton.setBounds(34, 468, 289, 47);
 		frame.getContentPane().add(btnNewButton);
 		
-		JButton btnBack = new JButton("Back");
+		JButton btnBack = new JButton("Exit");
+		btnBack.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				System.exit(0);
+				
+			}
+		});
 		btnBack.setFont(new Font("Tahoma", Font.BOLD, 14));
-		btnBack.setBounds(880, 497, 114, 41);
+		btnBack.setBounds(898, 48, 114, 41);
 		frame.getContentPane().add(btnBack);
+		
+		JScrollPane scrollPane = new JScrollPane();
+		scrollPane.setBounds(503, 110, 509, 328);
+		frame.getContentPane().add(scrollPane);
+		
+		table = new JTable();
+		scrollPane.setViewportView(table);
+		
+		JButton btnClear = new JButton("Clear");
+		btnClear.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				txtUserName.setText("");
+				txtPassword.setText("");
+				txtBatch.setText("");
+				txtProgram.setText("");
+				txtPhone.setText("");
+				txtSemester.setText("");
+				txtStdSearchID.setText("");
+				
+				txtUserName.requestFocus();
+				
+			}
+		});
+		btnClear.setFont(new Font("Tahoma", Font.BOLD, 14));
+		btnClear.setBounds(358, 393, 95, 41);
+		frame.getContentPane().add(btnClear);
 	}
 }
