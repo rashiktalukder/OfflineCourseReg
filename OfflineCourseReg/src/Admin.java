@@ -115,8 +115,8 @@ public class Admin {
 		frame.getContentPane().setLayout(null);
 		
 		JLabel lblNewLabel = new JLabel("AIUB Student Registration Offline");
-		lblNewLabel.setFont(new Font("Tahoma", Font.BOLD, 14));
-		lblNewLabel.setBounds(82, 53, 242, 36);
+		lblNewLabel.setFont(new Font("Tahoma", Font.BOLD, 20));
+		lblNewLabel.setBounds(82, 35, 362, 54);
 		frame.getContentPane().add(lblNewLabel);
 		
 		JPanel panel = new JPanel();

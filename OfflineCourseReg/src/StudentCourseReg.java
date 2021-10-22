@@ -284,7 +284,7 @@ public class StudentCourseReg extends JFrame {
 			
 		});
 		btnConfirm.setFont(new Font("Tahoma", Font.BOLD, 14));
-		btnConfirm.setBounds(518, 461, 183, 37);
+		btnConfirm.setBounds(518, 461, 199, 37);
 		contentPane.add(btnConfirm);
 		
 		txtSName = new JTextField();
@@ -314,5 +314,10 @@ public class StudentCourseReg extends JFrame {
 		txtSSemester.setColumns(10);
 		txtSSemester.setBounds(39, 400, 395, 50);
 		contentPane.add(txtSSemester);
+		
+		JLabel lblNewLabel_1 = new JLabel("Enroll Courses for Next Semester");
+		lblNewLabel_1.setFont(new Font("Tahoma", Font.BOLD, 20));
+		lblNewLabel_1.setBounds(39, 39, 395, 61);
+		contentPane.add(lblNewLabel_1);
 	}
 }
