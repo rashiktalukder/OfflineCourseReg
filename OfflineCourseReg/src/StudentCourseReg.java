@@ -1,11 +1,14 @@
 import java.awt.BorderLayout;
 
+
 import java.awt.EventQueue;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+
 import java.awt.Font;
 import javax.swing.JTextField;
 import javax.swing.JButton;
@@ -19,6 +22,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.awt.Label;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 public class StudentCourseReg extends JFrame {
 
@@ -228,6 +233,56 @@ public class StudentCourseReg extends JFrame {
 		panel_2.add(txtSearchSem);
 		
 		JButton btnConfirm = new JButton("Confirm Registration");
+		btnConfirm.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				String enStudentId=txtStdId.getText();
+				String enSemester= txtSearchSem.getText();
+				
+				String encourse1 = "",encourse2="",encourse3="",encourse4="";
+				
+				if(checkSubject1.isSelected())
+				{
+					encourse1= checkSubject1.getText();
+				}
+				if(checkSubject2.isSelected())
+				{
+					encourse2= checkSubject2.getText();
+				}
+				if(checkSubject3.isSelected())
+				{
+					encourse3= checkSubject3.getText();
+				}
+				if(checkSubject4.isSelected())
+				{
+					encourse4= checkSubject4.getText();
+				}
+				
+				
+				try {
+					
+					prepStatement=conn.prepareStatement("insert into student(stdid,studsemester,course1,course2,course3,course4)values(?,?,?,?,?,?)");
+					
+					prepStatement.setString(1, enStudentId);
+					prepStatement.setString(2, enSemester);
+					prepStatement.setString(3, encourse1);
+					prepStatement.setString(4, encourse2);
+					prepStatement.setString(5, encourse3);
+					prepStatement.setString(6, encourse4);
+					
+					prepStatement.executeUpdate();
+					
+					JOptionPane.showMessageDialog(null, "Registration Done, Jaao r line e dariye thakte hobe na.!");
+					
+					
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} 
+			}
+				
+			
+		});
 		btnConfirm.setFont(new Font("Tahoma", Font.BOLD, 14));
 		btnConfirm.setBounds(518, 461, 183, 37);
 		contentPane.add(btnConfirm);

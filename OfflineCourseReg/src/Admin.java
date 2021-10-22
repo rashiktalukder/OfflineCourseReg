@@ -251,9 +251,6 @@ public class Admin {
 		btnSave.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				
-				
-				  
-				
 				userName= txtUserName.getText();
 				userPassword= txtPassword.getText();
 				userBatch= txtBatch.getText();
