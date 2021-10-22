@@ -69,7 +69,7 @@ public class Admin {
 	ResultSet resSet;
 	private JTable table;
 	
-	private void Connection() {
+	public void Connection() {
 		
 		try {
 			
